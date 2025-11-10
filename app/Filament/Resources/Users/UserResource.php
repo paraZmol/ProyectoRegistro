@@ -11,14 +11,26 @@ use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use UnitEnum; // <-- IMPORTANTE
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    // ----- AQUÍ ESTÁN LOS TIPOS CORRECTOS -----
+
+    // Icono (línea 22) SÓLO ACEPTA ?string
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
+
+    protected static ?string $navigationLabel = 'Gestión de Usuarios';
+    protected static ?string $modelLabel = 'Usuario';
+
+    // Grupo (línea 26) SÍ ACEPTA UnitEnum
+    protected static string|UnitEnum|null $navigationGroup = 'Administración';
+
+    // -------------------------------------------
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -46,5 +58,15 @@ class UserResource extends Resource
             'create' => CreateUser::route('/create'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
+    }
+
+    // ----- LÓGICA PARA OCULTAR AL SUPER ADMIN -----
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->whereDoesntHave('roles', function ($query) {
+                $query->where('name', 'super_admin');
+            })
+            ->where('id', '!=', auth()->id());
     }
 }
