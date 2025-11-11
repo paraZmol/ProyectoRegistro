@@ -10,6 +10,8 @@ class Tesis extends Model
 {
     use HasFactory;
 
+    protected $table = 'teses';
+
     protected $fillable = [
         'titulo',
         'autor',

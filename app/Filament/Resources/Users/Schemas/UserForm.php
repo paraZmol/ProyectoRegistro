@@ -3,11 +3,11 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\Section;   // <-- Este es el que te da error
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
+use Filament\Schemas\Components\Section;
 
 class UserForm
 {
