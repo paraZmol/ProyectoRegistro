@@ -15,6 +15,9 @@ class Prestamo extends Model
         'momento_entrega',
         'estudiante_id',
         'item_id',
+        // nueva opcion para el desplegable
+        'actividad_tablet',
+        'actividad_tablet_otro',
     ];
 
     protected $casts = [
