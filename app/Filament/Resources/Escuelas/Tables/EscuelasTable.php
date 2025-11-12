@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Facultads\Tables;
+namespace App\Filament\Resources\Escuelas\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -10,25 +10,31 @@ use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 
 
-class FacultadsTable
+class EscuelasTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('facultad')
-                    ->label('Nombre de la Facultad')
+                TextColumn::make('escuela')
+                    ->label('Nombre de la Escuela')
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('facultad.facultad')
+                    ->label('Facultad')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('sigla')
                     ->label('Sigla')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
+
                 TextColumn::make('created_at')
                     ->label('Fecha de Creación')
                     ->dateTime('d/m/Y')
                     ->sortable()
-                    ->toggleable( true),
+                    ->toggleable(true),
             ])
             ->filters([
                 //
@@ -37,7 +43,7 @@ class FacultadsTable
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->toolbarActions([
+            ->toolbarActions([ 
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
