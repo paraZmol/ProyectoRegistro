@@ -10,24 +10,17 @@ class CreateTablet extends CreateRecord
 {
     protected static string $resource = TabletResource::class;
 
-    /**
-     * Mutar los datos del formulario antes de que se cree el registro.
-     *
-     * @param  array  $data
-     * @return array
-     */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // 2. Crear el 'Item' padre primero
+        // para crear el e insertar datos a la tabla item
         $item = Item::create([
             'tipo' => 'Tablet',
-            'estado_disponibilidad' => 'Disponible', // Estado por defecto al crear
+            'estado_disponibilidad' => 'Disponible', // disponible por defecto
         ]);
 
-        // 3. Añadir el ID del item_id a los datos del formulario
-        // para que la Tablet sepa a qué padre pertenece.
+        // luego de que se crea, se llama al ID para usarlo en la creacion de tablet
         $data['item_id'] = $item->id;
 
-        return $data; // 4. Devolver los datos listos para crear la Tablet
+        return $data;
     }
 }

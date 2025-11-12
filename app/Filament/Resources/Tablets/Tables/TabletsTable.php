@@ -29,8 +29,9 @@ class TabletsTable
                 TextColumn::make('modelo')
                     ->searchable(),
 
-                // --- Columna de la tabla relacionada "items" ---
-                // invesitgar el badge column en filamente V4, mas tarde
+                /* el badge se usa para relacionar
+                *el estado del item con la tablet,
+                *ya que tablet no tiene estado de disponibilidad*/
                 BadgeColumn::make('item.estado_disponibilidad')
                     ->label('Estado')
                     ->sortable()

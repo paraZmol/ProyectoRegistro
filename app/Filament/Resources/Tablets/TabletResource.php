@@ -52,8 +52,9 @@ class TabletResource extends Resource
     }
 
     /* ---  Eager Loading ---
-    * Carga la relación 'item' para que 'item.estado_disponibilidad'
-    * (la columna 'Estado') funcione en el listado de la tabla.*/
+    * problema N+1, ya que ara la consulta principal y 50+ para relacionar las tablets con los items
+    * entonces hacemos un consulta extra donde relaciona el item con tablet
+    * asi que en ves de hacer 50 + 1 consultas, solo hacemos 2 consultas*/
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with('item');
