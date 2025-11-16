@@ -60,6 +60,6 @@ class PrestamoResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['estudiante', 'item']);
+            ->with(['estudiante', 'item.tablet', 'item.tesis']);
     }
 }

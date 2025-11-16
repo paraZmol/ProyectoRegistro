@@ -25,12 +25,14 @@ class Item extends Model
     // 1 item - 1 tablet
     public function tablet(): HasOne
     {
-        return $this->hasOne(Tablet::class);
+        //return $this->hasOne(Tablet::class);
+        return $this->hasOne(Tablet::class, 'item_id');
     }
 
     // 1 item - 1 tesis
     public function tesis(): HasOne
     {
-        return $this->hasOne(Tesis::class);
+        //return $this->hasOne(Tesis::class);
+        return $this->hasOne(Tesis::class, 'item_id');
     }
 }
