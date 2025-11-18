@@ -36,7 +36,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('prestamos', function (Blueprint $table) {
-            // Para poder deshacer la migración
+            // para poder deshacer la migración
             $table->dropColumn('actividad_tablet');
             $table->dropColumn('actividad_tablet_otro');
         });

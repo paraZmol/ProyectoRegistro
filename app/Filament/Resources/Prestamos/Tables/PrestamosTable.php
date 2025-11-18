@@ -123,7 +123,7 @@ class PrestamosTable
                                         ->visible(fn ($record) => trim($record->item->tipo) === 'Tesis'),
 
                                     // caso tablet
-                                    TextEntry::make('item_detalle_tablet') // Campo virtual
+                                    TextEntry::make('item_detalle_tablet') // campo virtual
                                         ->label('Detalle del Ítem')
                                         ->getStateUsing(function ($record) {
                                             if (!$record->item->tablet) { return null; }
@@ -185,7 +185,7 @@ class PrestamosTable
                                                     // enlace al balde de imprimir pdf
                                                     ->url(fn (Prestamo $record) => route('prestamos.boleta', $record))
                                                     ->openUrlInNewTab(),
-                                            ])->fullWidth(), // Para que los botones se vean bien
+                                            ])->fullWidth(), // poara que los botones se vean bien
                                         ])
                                     // fin botones
                  ])

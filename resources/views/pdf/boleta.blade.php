@@ -21,7 +21,7 @@
         .header h1 {
             margin: 0;
             font-size: 24px;
-            color: #1A3E6C; /* Color institucional */
+            color: #1A3E6C; /* color institucional */
         }
         .header h2 {
             margin: 5px 0 0;
@@ -67,8 +67,8 @@
             padding-top: 10px;
         }
         img{
-            height: 80px;
-            margin-bottom: 10px;
+            height: 90px;
+            margin: 10px;
         }
     </style>
 </head>
@@ -76,14 +76,12 @@
 
     <div class="container">
         <div class="header">
-
+            <h1>Biblioteca Central - UNASAM</h1>
             {{-- logo de la unasam --}}
             <img
             src="{{ public_path('images/logo-unasam.png') }}"
             alt="Logo UNASAM"
             >
-
-            <h1>Biblioteca Central - UNASAM</h1>
             <h2>Comprobante de Préstamo</h2>
             <p><strong>N° de Préstamo:</strong> {{ str_pad($prestamo->id, 6, '0', STR_PAD_LEFT) }}</p>
         </div>

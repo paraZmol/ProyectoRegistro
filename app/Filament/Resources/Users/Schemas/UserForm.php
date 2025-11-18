@@ -49,7 +49,7 @@ class UserForm
                             ->required(fn (string $operation): bool => $operation === 'create'),
                     ])->columns(2),
 
-                // 5. ¡El campo clave! El selector de Rol
+                // slector de rol
                 Section::make('Asignación de Rol')
                     ->schema([
                         Select::make('roles')

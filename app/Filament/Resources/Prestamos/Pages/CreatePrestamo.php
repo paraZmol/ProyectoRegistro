@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Prestamos\Pages;
 
 use App\Filament\Resources\Prestamos\PrestamoResource;
 use Filament\Resources\Pages\CreateRecord;
-use App\Models\Item;
 use Carbon\Carbon;
 
 class CreatePrestamo extends CreateRecord
@@ -18,13 +17,13 @@ class CreatePrestamo extends CreateRecord
         return $data;
     }
 
-    // --- 6. LÓGICA DESPUÉS DE GUARDAR ---
+    // logica despues de guardar
     protected function afterCreate(): void
     {
-        // Obtener el registro que acabamos de crear
+        // obtener el registro que se creo
         $prestamo = $this->getRecord();
 
-        // Actualizar el Item relacionado
+        // actualizr el item relacionado
         $item = $prestamo->item;
         $item->estado_disponibilidad = 'Prestado';
         $item->save();

@@ -14,9 +14,6 @@ use App\Models\Item;
 use App\Models\Prestamo;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rules\Unique;
-//use Filament\Forms\Get;
 
 class PrestamoForm
 {
@@ -25,11 +22,10 @@ class PrestamoForm
     {
         return $schema
             ->schema([
-                // 2. NO hay 'Wizard', solo una Sección
                 Section::make('Registrar Nuevo Préstamo')
                     ->schema([
 
-                        // --- Campo Estudiante ---
+                        // estudiante
                         Select::make('estudiante_id')
                             ->label('Estudiante')
                             ->relationship('estudiante', 'apellidos')
@@ -38,13 +34,13 @@ class PrestamoForm
                             ->preload()
                             ->required(),
 
-                        // --- Campo Fecha ---
+                        // fecha
                         DateTimePicker::make('momento_prestamo')
                             ->label('Fecha y Hora del Préstamo')
                             ->default(now())
                             ->required(),
 
-                        // --- Campo Ítem ---
+                        //item
                         Select::make('item_id')
                             ->label('Ítem')
                             ->relationship(
@@ -71,28 +67,28 @@ class PrestamoForm
                             ->live()
                             // reglas
                             ->rules([
-                                // La regla principal
+                                // principal
                                 function (Get $get) {
                                     return function (string $attribute, $value, \Closure $fail) use ($get) {
 
-                                        // A. Obtener los datos
+                                        // obtener los datos
                                         $estudianteId = $get('estudiante_id');
-                                        $item = Item::find($value); // El ítem que se quiere prestar
+                                        $item = Item::find($value); // item a prestar
 
                                         if (!$estudianteId || !$item) {
-                                            return; // Si no hay estudiante o ítem, no validar
+                                            return; // si no hay item o estudiante no se valida
                                         }
 
-                                        // B. Buscar si ya existe un préstamo ACTIVO
+                                        // verifiar si hay algun prstmao activo
                                         $prestamoActivo = Prestamo::where('estudiante_id', $estudianteId)
-                                            ->whereNull('momento_entrega') // <-- Que esté activo
+                                            ->whereNull('momento_entrega') // que este activo
                                             ->whereHas('item', function ($query) use ($item) {
-                                                // Del MISMO TIPO (Tablet o Tesis)
+                                                // del mismo tipo (Tablet o Tesis)
                                                 $query->where('tipo', $item->tipo);
                                             })
-                                            ->exists(); // <-- Solo preguntar si existe
+                                            ->exists(); //para consultar si hay algun prestamo
 
-                                        // C. Si existe, fallar la validación (RF-18 y RF-19)
+                                        // si hay algun prestamos rechazamos la validacion con un mensaje
                                         if ($prestamoActivo) {
                                             $fail("El estudiante ya tiene un préstamo activo de una {$item->tipo}.");
                                         }
@@ -100,7 +96,7 @@ class PrestamoForm
                                 },
                             ]),
                         // --------------
-                        // 2. El desplegable de Actividad (para Tablets)
+                        // desplegable de actividad par atablte
                         Select::make('actividad_tablet')
                             ->label('Actividad a realizar con la Tablet')
                             ->options([
@@ -110,31 +106,33 @@ class PrestamoForm
                                 'Otro' => 'Otro',
                             ])
                             ->required()
-                            ->live() // Necesario para mostrar/ocultar el campo 'Otro'
+                            ->live() // en caso de que sea otro
+                            // para ver si se selecciona una tablet o no
                             ->visible(function (Get $get) {
+                                // buscar si que tipo de item se seleccion
                                 $item = Item::find($get('item_id'));
-                                // Comparamos el tipo de la DB (normalizado) con 'Tablet'
+                                // para comprar si la tablet existe o no y filtrar en minusculas
                                 return $item && strtolower(trim($item->tipo)) === 'tablet';
                             }),
 
-                        // 3. El campo de texto "Otro" (solo si se selecciona 'Otro' en 'actividad_tablet')
+                        //para el caso de otro en tablet
                         TextInput::make('actividad_tablet_otro')
                             ->label('Especifique la actividad')
                             ->required()
                             ->visible(fn (Get $get) => $get('actividad_tablet') === 'Otro'),
 
-                        // 4. Mensaje para Tesis (solo si se selecciona una Tesis)
+                        // en caso de ser tesis
                         Placeholder::make('info_tesis')
                             ->content('Este préstamo es una Tesis, no se requiere actividad.')
+                            // para ver si es una tesis
                             ->visible(function (Get $get) {
+                                // busca el item en el formulario
                                 $item = Item::find($get('item_id'));
-                                // Comparamos el tipo de la DB (normalizado) con 'Tesis'
+                                // para comprbar si el item existe o no, filtrando en minusculas
                                 return $item && strtolower(trim($item->tipo)) === 'tesis';
                             }),
-
-                        // --- FIN: LÓGICA CONDICIONAL DE ACTIVIDAD ---
                     ])
-                    ->columns(2), // 4. Poner los campos en 2 columnas
+                    ->columns(2),
             ])
             ->columns(1);
     }

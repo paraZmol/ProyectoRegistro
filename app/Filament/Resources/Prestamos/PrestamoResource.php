@@ -15,7 +15,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Form;
 
 class PrestamoResource extends Resource
 {
@@ -29,8 +28,6 @@ class PrestamoResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        // Lo dejaremos así por ahora, el formulario de creación
-        // será una página personalizada.
         return PrestamoForm::configure($schema);
         //return $form->schema([]);
     }

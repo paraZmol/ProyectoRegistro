@@ -8,6 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * vible con comando, pero esta hecho por el shield, recuerda revisar
      */
     public function up(): void
     {

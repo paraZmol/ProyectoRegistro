@@ -34,7 +34,7 @@ class EstudianteForm
 
                         Select::make('escuela_id')
                             ->label('Escuela Profesional')
-                            ->relationship(name: 'escuela', titleAttribute: 'escuela') // (Relación, Columna)
+                            ->relationship(name: 'escuela', titleAttribute: 'escuela')
                             ->searchable()
                             ->preload()
                             ->required(),
