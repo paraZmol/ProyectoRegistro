@@ -93,8 +93,8 @@ class PrestamosTable
                 ViewAction::make('ver')
                     ->label('Ver Detalles')
                     ->modalHeading('Detalles del Préstamo')
-                    ->modalSubmitAction(false) // Oculta el botón "Guardar"
-                    ->modalCancelActionLabel('Cerrar') // Cambia el botón "Cancelar" por "Cerrar"
+                    ->modalSubmitAction(false) // oculta el botón Guardar
+                    ->modalCancelActionLabel('Cerrar') // Cambia el boton "Cancelar" por "Cerrar"
 
                     ->infolist([
                             Section::make('Información del Estudiante')
@@ -149,7 +149,7 @@ class PrestamosTable
                                         ->size(TextSize::Large)// tamaño de letra
                                         ->color(fn ($state): string => $state === 'Aún no devuelto' ? 'danger' : 'success'),
                                     ]),
-                                    // --- botones de guardar e imprimir
+                                    // botones de guardar e imprimir
                                     Section::make('Acciones')
                                         ->schema([
                                             Actions::make([
@@ -193,7 +193,7 @@ class PrestamosTable
                                     // fin botones
                  ])
             ])
-            ->toolbarActions([ // Acciones de la barra
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
