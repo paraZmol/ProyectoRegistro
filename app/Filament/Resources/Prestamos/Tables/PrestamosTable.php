@@ -24,10 +24,10 @@ class PrestamosTable
     public static function configure(Table $table): Table
     {
         return $table
-            // --- ordenar por defecto de lo mas reciente al mas primero ---
+            //ordenar por defecto de lo mas reciente al mas primero ---
             ->defaultSort('created_at', 'desc')
             ->columns([
-                TextColumn::make('estado') // Columna virtual
+                TextColumn::make('estado') // columna virtual
                     ->label('Estado')
                     ->getStateUsing(function ($record): string {
                         if (is_null($record->momento_entrega)) {
@@ -86,15 +86,15 @@ class PrestamosTable
                     ->searchable()
                     ->preload(),
             ])
-            ->recordUrl(null) // Importante: desactivar el clic en la fila
+            ->recordUrl(null) //desactiva el clik por fila
 
-            ->recordActions([ // Acciones al final de la fila
+            ->recordActions([ // bton de acciones
 
                 ViewAction::make('ver')
                     ->label('Ver Detalles')
                     ->modalHeading('Detalles del Préstamo')
-                    ->modalSubmitAction(false) // oculta el botón Guardar
-                    ->modalCancelActionLabel('Cerrar') // Cambia el boton "Cancelar" por "Cerrar"
+                    ->modalSubmitAction(false) // hide al botomn guardar
+                    ->modalCancelActionLabel('Cerrar') // camniar cancelar por cerrar
 
                     ->infolist([
                             Section::make('Información del Estudiante')
@@ -177,17 +177,14 @@ class PrestamosTable
                                                     ->visible(fn ($record) => is_null($record->momento_entrega))
                                                     ->close(),
 
-                                                // Botón 2: Imprimir Boleta (RF-21 Placeholder)
+                                                // imprimir boleta
                                                 Action::make('imprimir')
                                                     ->label('Imprimir Boleta')
                                                     ->icon('heroicon-o-printer')
                                                     ->color('gray')
-                                                    ->action(function () {
-                                                        Notification::make()
-                                                            ->title('Función no implementada')
-                                                            ->info()
-                                                            ->send();
-                                                    }),
+                                                    // enlace al balde de imprimir pdf
+                                                    ->url(fn (Prestamo $record) => route('prestamos.boleta', $record))
+                                                    ->openUrlInNewTab(),
                                             ])->fullWidth(), // Para que los botones se vean bien
                                         ])
                                     // fin botones

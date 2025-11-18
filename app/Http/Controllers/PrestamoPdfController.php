@@ -16,10 +16,15 @@ class PrestamoPdfController extends Controller
         //crear el pdf
         $pdf = Pdf::loadView('pdf.boleta', ['prestamo'=> $prestamo]);
 
-        // tamaño de papael en A4
+        $pdf->setOption([ // cargar imagenes locale sy externas
+            'isRemoteEnabled' => true,
+            'isHtml5ParserEnabled' => true
+        ]);
+               // tamaño de papael en A4
         $pdf->setPaper('a4', 'portrait');
 
         // para abrir una nueva pestaña con pdf
         return $pdf->stream("boleta-prestamo-{$prestamo->id}.pdf");
+        //return view('pdf.boleta', ['prestamo' => $prestamo]);
     }
 }

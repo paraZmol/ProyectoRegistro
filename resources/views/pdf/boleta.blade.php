@@ -9,30 +9,37 @@
             font-size: 14px;
             color: #333;
         }
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+        }
         .header {
             text-align: center;
             margin-bottom: 30px;
-            border-bottom: 2px solid #444;
-            padding-bottom: 10px;
         }
         .header h1 {
             margin: 0;
-            font-size: 20px;
-            text-transform: uppercase;
+            font-size: 24px;
+            color: #1A3E6C; /* Color institucional */
         }
-        .header p {
+        .header h2 {
             margin: 5px 0 0;
-            font-size: 12px;
-            color: #666;
+            font-size: 16px;
+            font-weight: normal;
         }
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
         .section-title {
-            background-color: #f0f0f0;
-            padding: 5px 10px;
+            font-size: 15px;
             font-weight: bold;
-            border-left: 4px solid #333;
+            color: #1A3E6C;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
             margin-bottom: 10px;
         }
         table {
@@ -41,13 +48,15 @@
         }
         th {
             text-align: left;
-            width: 150px;
-            padding: 5px;
-            font-weight: bold;
+            width: 25%;
+            padding: 4px 10px;
+            font-weight: 500;
             color: #555;
+            vertical-align: top;
         }
         td {
-            padding: 5px;
+            padding: 4px 10px;
+            vertical-align: top;
         }
         .footer {
             margin-top: 50px;
@@ -57,94 +66,115 @@
             border-top: 1px solid #ddd;
             padding-top: 10px;
         }
+        img{
+            height: 80px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Biblioteca Central - UNASAM</h1>
-        <p>Comprobante de Préstamo de Material</p>
-        <p><strong>N° de Préstamo:</strong> {{ str_pad($prestamo->id, 6, '0', STR_PAD_LEFT) }}</p>
-    </div>
+    <div class="container">
+        <div class="header">
 
-    <div class="section">
-        <div class="section-title">DATOS DEL ESTUDIANTE</div>
-        <table>
-            <tr>
-                <th>Apellidos:</th>
-                <td>{{ $prestamo->estudiante->apellidos }}</td>
-            </tr>
-            <tr>
-                <th>Nombres:</th>
-                <td>{{ $prestamo->estudiante->nombres }}</td>
-            </tr>
-            <tr>
-                <th>Carnet/DNI:</th>
-                <td>{{ $prestamo->estudiante->carnet }}</td>
-            </tr>
-            <tr>
-                <th>Escuela:</th>
-                <td>{{ $prestamo->estudiante->escuela->escuela }}</td>
-            </tr>
-        </table>
-    </div>
+            {{-- logo de la unasam --}}
+            <img
+            src="{{ public_path('images/logo-unasam.png') }}"
+            alt="Logo UNASAM"
+            >
 
-    <div class="section">
-        <div class="section-title">DETALLES DEL PRÉSTAMO</div>
-        <table>
-            <tr>
-                <th>Fecha y Hora:</th>
-                <td>{{ $prestamo->momento_prestamo->format('d/m/Y H:i A') }}</td>
-            </tr>
-            <tr>
-                <th>Tipo de Ítem:</th>
-                <td>{{ $prestamo->item->tipo }}</td>
-            </tr>
-            <tr>
-                <th>Descripción:</th>
-                <td>
-                    {{-- Lógica para mostrar los detalles según el tipo --}}
-                    @php
-                        $item = $prestamo->item;
-                        if (trim($item->tipo) === 'Tablet') {
-                            if ($item->tablet) {
-                                echo "<strong>Marca:</strong> {$item->tablet->marca}<br>";
-                                echo "<strong>Modelo:</strong> {$item->tablet->modelo}<br>";
-                                echo "<strong>Código:</strong> {$item->tablet->codigo}<br>";
-                                echo "<strong>Color:</strong> {$item->tablet->color}";
-                            } else {
-                                echo "Error: Datos de Tablet no encontrados";
-                            }
-                        } elseif (trim($item->tipo) === 'Tesis') {
-                            if ($item->tesis) {
-                                echo "<strong>Título:</strong> {$item->tesis->titulo}<br>";
-                                echo "<strong>Autor:</strong> {$item->tesis->autor}";
-                            } else {
-                                echo "Error: Datos de Tesis no encontrados";
-                            }
-                        }
-                    @endphp
-                </td>
-            </tr>
+            <h1>Biblioteca Central - UNASAM</h1>
+            <h2>Comprobante de Préstamo</h2>
+            <p><strong>N° de Préstamo:</strong> {{ str_pad($prestamo->id, 6, '0', STR_PAD_LEFT) }}</p>
+        </div>
 
-            {{-- Mostrar Actividad solo si es Tablet --}}
-            @if(trim($prestamo->item->tipo) === 'Tablet' && $prestamo->actividad_tablet)
+        @php
+            $item = $prestamo->item;
+            $estado = is_null($prestamo->momento_entrega) ? 'ACTIVO (Aún en posesión del estudiante)' : 'DEVUELTO';
+            $estado_color = is_null($prestamo->momento_entrega) ? '#D35400' : '#27AE60';
+        @endphp
+
+        <div class="section">
+            <div class="section-title">ESTADO DE LA TRANSACCIÓN</div>
+            <table>
                 <tr>
-                    <th>Actividad:</th>
-                    <td>
-                        {{ $prestamo->actividad_tablet }}
-                        @if($prestamo->actividad_tablet_otro)
-                            <br><em>(Detalle: {{ $prestamo->actividad_tablet_otro }})</em>
-                        @endif
+                    <th>Estado Actual:</th>
+                    <td style="font-weight: bold; color: {{ $estado_color }};">
+                        {{ $estado }}
                     </td>
                 </tr>
-            @endif
-        </table>
-    </div>
+                @if($estado === 'DEVUELTO')
+                    <tr>
+                        <th>Fecha de Devolución:</th>
+                        <td>{{ $prestamo->momento_entrega->format('d/m/Y H:i A') }}</td>
+                    </tr>
+                @endif
+            </table>
+        </div>
 
-    <div class="footer">
-        <p>Este documento es un comprobante generado automáticamente por el sistema de gestión de la biblioteca.</p>
-        <p>Fecha de impresión: {{ date('d/m/Y H:i') }}</p>
+        <div class="section">
+            <div class="section-title">DATOS DEL ESTUDIANTE</div>
+            <table>
+                <tr>
+                    <th>Apellidos y Nombres:</th>
+                    <td>{{ $prestamo->estudiante->apellidos }}, {{ $prestamo->estudiante->nombres }}</td>
+                </tr>
+                <tr>
+                    <th>Carnet/DNI:</th>
+                    <td>{{ $prestamo->estudiante->carnet }}</td>
+                </tr>
+                <tr>
+                    <th>Escuela:</th>
+                    <td>{{ $prestamo->estudiante->escuela->escuela }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">DETALLES DEL ÍTEM ({{ $item->tipo }})</div>
+            <table>
+                <tr>
+                    <th>Fecha de Préstamo:</th>
+                    <td>{{ $prestamo->momento_prestamo->format('d/m/Y H:i A') }}</td>
+                </tr>
+
+                @if(trim($item->tipo) === 'Tablet')
+                    <tr>
+                        <th>Código:</th>
+                        <td>{{ $item->tablet->codigo }}</td>
+                    </tr>
+                    <tr>
+                        <th>Marca y Modelo:</th>
+                        <td>{{ $item->tablet->marca }} / {{ $item->tablet->modelo }} (Color: {{ $item->tablet->color }})</td>
+                    </tr>
+                    @if($prestamo->actividad_tablet)
+                        <tr>
+                            <th>Actividad:</th>
+                            <td>
+                                {{ $prestamo->actividad_tablet }}
+                                @if($prestamo->actividad_tablet_otro)
+                                    ({{ $prestamo->actividad_tablet_otro }})
+                                @endif
+                            </td>
+                        </tr>
+                    @endif
+                @elseif(trim($item->tipo) === 'Tesis')
+                    <tr>
+                        <th>Título:</th>
+                        <td>{{ $item->tesis->titulo }}</td>
+                    </tr>
+                    <tr>
+                        <th>Autor:</th>
+                        <td>{{ $item->tesis->autor }}</td>
+                    </tr>
+                @endif
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Este documento es un comprobante generado automáticamente por el sistema de gestión de la biblioteca.</p>
+            <p>Fecha de impresión: {{ date('d/m/Y H:i') }}</p>
+        </div>
     </div>
 
 </body>
