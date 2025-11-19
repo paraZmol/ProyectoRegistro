@@ -27,8 +27,11 @@ class ListPrestamos extends ListRecords
         $query = parent::getTableQuery();
 
         try {
-            // /todo en una saola llamada
+            // /todoo en una saola llamada
             $query->with(['estudiante', 'item.tablet', 'item.tesis']);
+            /*$query->with(['estudiante']); // Sobrescribe
+            $query->with(['item']);       // Sobrescribe
+            $query->with(['item.tablet', 'item.tesis']);*/
 
         } catch (\Exception $e) {
             Log::info('¡¡¡ERROR EN EAGER LOADING!!! ' . $e->getMessage());
@@ -37,7 +40,7 @@ class ListPrestamos extends ListRecords
     }
 
     // botno de registrar devolucion
-    public function handleDevolverAction(string $recordId): void
+    /*public function handleDevolverAction(string $recordId): void
     {
         $prestamo = Prestamo::find($recordId);
 
@@ -55,7 +58,7 @@ class ListPrestamos extends ListRecords
 
         // recargar la tabla
         $this->js('window.location.reload()');
-    }
+    }*/
 
     // imprimir boleta
     /*public function handleImprimirAction(string $recordId): void

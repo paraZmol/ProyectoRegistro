@@ -18,6 +18,7 @@ use Filament\Actions\ViewAction;
 use Filament\Support\Enums\TextSize;
 use App\Models\Prestamo;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PrestamosTable
 {
@@ -174,8 +175,12 @@ class PrestamosTable
                                                             ->success()
                                                             ->send();
                                                     })
+                                                    ->after(function ($record, $livewire) {
+                                                        // Cerrar el modal del ViewAction
+                                                        $livewire->dispatch('close-modal', id: 'view-action');
+                                                    })
                                                     ->visible(fn ($record) => is_null($record->momento_entrega))
-                                                    ->close(),
+                                                    /*->close()*/,
 
                                                 // imprimir boleta
                                                 Action::make('imprimir')
