@@ -19,6 +19,8 @@ use Filament\Support\Enums\TextSize;
 use App\Models\Prestamo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\DatePicker;
 
 class PrestamosTable
 {
@@ -74,6 +76,7 @@ class PrestamosTable
                 // filtro para ver prestamos activos
                 Filter::make('prestamos_activos')
                     ->label('Mostrar solo préstamos activos')
+                    ->columnSpan(3)// para controlar el horizontal
                     ->query(fn (Builder $query): Builder =>
                         $query->whereNull('momento_entrega')
                     )
@@ -85,8 +88,82 @@ class PrestamosTable
                     ->relationship('estudiante', 'apellidos')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->apellidos . ', ' . $record->nombres)
                     ->searchable()
-                    ->preload(),
-            ])
+                    ->preload()
+                    ->columnSpan(6),
+
+                // filtro por carnet
+                Filter::make('carnet')
+                    ->label('Carnet')
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('valor')
+                            ->label('Número de carnet')
+                            ->placeholder('Ej. 20231234')
+                            ->maxLength(20),
+                    ])
+                    ->columnSpan(3)
+                    ->query(function (Builder $query, array $data) {
+
+                        if (empty($data['valor'])) {
+                            return $query;
+                        }
+
+                        // filtrar por carnet usando relación estudiante
+                        return $query->whereHas('estudiante', function (Builder $q) use ($data) {
+                            $q->where('carnet', 'like', '%' . $data['valor'] . '%');
+                        });
+                    }),
+
+                // filtro por fechas
+                Filter::make('rango_fechas')
+                    ->label('Filtrar por fechas')
+                    ->form([
+                        \Filament\Forms\Components\Select::make('tipo_fecha')
+                            ->label('Tipo de fecha')
+                            ->options([
+                                'prestamo' => 'Fecha de Préstamo',
+                                'devolucion' => 'Fecha de Devolución',
+                            ])
+                            ->required()
+                            ->native(false)
+                            ->columnSpan(4),
+
+                        DatePicker::make('desde')
+                            ->label('Desde')
+                            ->columnSpan(4),
+
+                        DatePicker::make('hasta')
+                            ->label('Hasta')
+                            ->columnSpan(4),
+                    ])
+                    ->columns(12)
+                    ->columnSpan(12)
+                    ->query(function (Builder $query, array $data) {
+
+                        // si el usuario no selecciono el tipo de fecha no se aplicara el filtro de fechas
+                        if (empty($data['tipo_fecha'])) {
+                            return $query;
+                        }
+
+                        // determinar el campo de seleccion
+                        $campo = $data['tipo_fecha'] === 'prestamo'
+                            ? 'momento_prestamo'
+                            : 'momento_entrega';
+
+                        // desde
+                        if (!empty($data['desde'])) {
+                            $query->whereDate($campo, '>=', $data['desde']);
+                        }
+
+                        // hasta
+                        if (!empty($data['hasta'])) {
+                            $query->whereDate($campo, '<=', $data['hasta']);
+                        }
+
+                        return $query;
+                    }),
+
+            ],layout: FiltersLayout::AboveContent)
+            ->filtersFormColumns(12)
             ->recordUrl(null) //desactiva el clik por fila
 
             ->recordActions([ // bton de acciones
@@ -177,7 +254,7 @@ class PrestamosTable
                                                     })
                                                     ->after(function ($record, $livewire) {
                                                         // Cerrar el modal del ViewAction
-                                                        $livewire->dispatch('close-modal', id: 'view-action');
+                                                        $livewire->dispatch('close-modal', modalId: 'view-action');
                                                     })
                                                     ->visible(fn ($record) => is_null($record->momento_entrega))
                                                     /*->close()*/,
