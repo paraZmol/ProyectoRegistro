@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Prestamo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class PrestamoPdfController extends Controller
 {
@@ -32,69 +34,113 @@ class PrestamoPdfController extends Controller
     // boleta en lista
     public function imprimirListado(Request $request)
     {
-        // obtener filtros aplicados desde la URL
-        $filtros = $request->all();
+        // capturar filtros desde el Request
+        /*$filtros = [
+            'fecha_inicio' => $request->input('fecha_inicio'),
+            'fecha_fin'    => $request->input('fecha_fin'),
+            'estudiante'   => $request->input('estudiante'),
+            'escuela_id'   => $request->input('escuela_id'),
+            'tipo_item'    => $request->input('tipo_item'),
+        ];
 
-        // para construir la query base
-        $query = Prestamo::query()
-            ->with(['estudiante.escuela', 'item.tablet', 'item.tesis']);
+        // construir el query con filtros
+        $query = Prestamo::with(['estudiante.escuela', 'item.tablet', 'item.tesis']);
 
-        // filtro 1 - prestamos activos por defecto
-        if ($request->has('tableFilters.prestamos_activos.value')) {
-            $value = $request->input('tableFilters.prestamos_activos.value');
-
-            if ($value) {
-                $query->whereNull('momento_entrega');
-            }
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('momento_prestamo', '>=', $request->fecha_inicio);
         }
 
-        // filtro 2 - estudiante
-        if ($request->has('tableFilters.estudiante_id.value')) {
-            $query->where('estudiante_id', $request->input('tableFilters.estudiante_id.value'));
+        if ($request->filled('fecha_fin')) {
+            $query->whereDate('momento_prestamo', '<=', $request->fecha_fin);
         }
 
-        // filtro 3 - carnet
-        if ($request->has('tableFilters.carnet.value')) {
+        if ($request->filled('estudiante')) {
             $query->whereHas('estudiante', function ($q) use ($request) {
-                $q->where('carnet', 'like', '%' . $request->input('tableFilters.carnet.value') . '%');
+                $q->where('apellidos', 'like', "%{$request->estudiante}%")
+                ->orWhere('nombres', 'like', "%{$request->estudiante}%");
             });
         }
 
-        // filtro 4 → rango de fechas
-        if ($request->has('tableFilters.rango_fechas.value')) {
-            $tipo = $request->input('tableFilters.rango_fechas.value.tipo_fecha');
-            $desde = $request->input('tableFilters.rango_fechas.value.desde');
-            $hasta = $request->input('tableFilters.rango_fechas.value.hasta');
-
-            if ($tipo) {
-                $campo = $tipo === 'prestamo' ? 'momento_prestamo' : 'momento_entrega';
-
-                if ($desde) {
-                    $query->whereDate($campo, '>=', $desde);
-                }
-                if ($hasta) {
-                    $query->whereDate($campo, '<=', $hasta);
-                }
-            }
+        if ($request->filled('escuela_id')) {
+            $query->whereHas('estudiante.escuela', function ($q) use ($request) {
+                $q->where('id', $request->escuela_id);
+            });
         }
 
-        // obtener resultados filtrados
-        $prestamos = $query->orderBy('created_at', 'desc')->get();
+        if ($request->filled('tipo_item')) {
+            $query->whereHas('item', function ($q) use ($request) {
+                $q->where('tipo', $request->tipo_item);
+            });
+        }
 
-        // generar PDF
+        // obtener los registros
+        $prestamos = $query->get();
+
+        // enviar prestamos y filtros al blade del PDF
         $pdf = Pdf::loadView('pdf.prestamos-listado', [
             'prestamos' => $prestamos,
-            'filtros' => $filtros,
+            'filtros'   => $filtros,
         ]);
 
-        $pdf->setOption([
-            'isRemoteEnabled' => true,
-            'isHtml5ParserEnabled' => true,
-        ]);
+        return $pdf->stream('prestamos.pdf');*/
 
-        $pdf->setPaper('a4', 'portrait');
+// 1. Recibir los filtros desde la URL
+    $filtros = $request->input('filtros', []);
 
-        return $pdf->stream("prestamos-filtrados.pdf");
+    // 2. Consulta Base
+    $query = Prestamo::query()
+        ->with(['estudiante.escuela', 'item.tablet', 'item.tesis'])
+        ->orderBy('created_at', 'desc');
+
+    // 3. RECONSTRUCCIÓN MANUAL DE FILTROS
+    // Filament envía los filtros en un array, hay que "traducirlos" a Eloquent
+
+    // A. Filtro: Préstamos Activos (Checkbox/Toggle)
+    if (!empty($filtros['prestamos_activos']['isActive'])) {
+        $query->whereNull('momento_entrega');
     }
 
+    // B. Filtro: Estudiante (Select)
+    if (!empty($filtros['estudiante_id']['value'])) {
+        $query->where('estudiante_id', $filtros['estudiante_id']['value']);
+    }
+
+    // C. Filtro: Carnet (Input text dentro de un form)
+    if (!empty($filtros['carnet']['valor'])) {
+        $carnet = $filtros['carnet']['valor'];
+        $query->whereHas('estudiante', function($q) use ($carnet) {
+            $q->where('carnet', 'like', "%{$carnet}%");
+        });
+    }
+
+    // D. Filtro: Fechas (DatePicker dentro de un form)
+    if (!empty($filtros['rango_fechas'])) {
+        $datosFecha = $filtros['rango_fechas'];
+
+        // Determinar qué campo filtrar (prestamo o devolucion)
+        $campo = ($datosFecha['tipo_fecha'] ?? 'prestamo') === 'devolucion'
+            ? 'momento_entrega'
+            : 'momento_prestamo';
+
+        if (!empty($datosFecha['desde'])) {
+            $query->whereDate($campo, '>=', $datosFecha['desde']);
+        }
+        if (!empty($datosFecha['hasta'])) {
+            $query->whereDate($campo, '<=', $datosFecha['hasta']);
+        }
+    }
+
+    // 4. Obtener resultados
+    $prestamos = $query->get();
+
+    // 5. Generar PDF
+    $pdf = Pdf::loadView('pdf.prestamos-listado', [
+        'prestamos' => $prestamos,
+        'filtros' => $filtros // Pasamos los filtros para mostrarlos en el header del PDF si quieres
+    ]);
+
+    $pdf->setPaper('a4', 'landscape');
+
+    return $pdf->stream('reporte_general.pdf');
+    }
 }

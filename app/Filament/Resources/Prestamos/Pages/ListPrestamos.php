@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 use App\Filament\Resources\Prestamos\PrestamoResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class ListPrestamos extends ListRecords
 {
@@ -25,7 +26,14 @@ class ListPrestamos extends ListRecords
                 ->label('Imprimir')
                 ->icon('heroicon-o-printer')
                 ->color('success')
-                ->action('imprimirRegistros'),
+                //->url(fn() => route('prestamos.imprimir', $this->getTable()->getFilters()))
+                //->url(fn () => route('prestamos.imprimir', ['filtros' => $this->tableFilters]))
+                //->url(fn() => route('prestamos.imprimir', ['filters' => $this->getTable()->getAppliedFilters()]))
+                //->url(fn () => route('prestamos.imprimir', request()->all()))
+                ->url(fn ($livewire) => route('prestamos.imprimir', [
+                    'filtros' => $livewire->tableFilters
+                ]))
+                ->openUrlInNewTab(),
         ];
     }
 
@@ -45,12 +53,4 @@ class ListPrestamos extends ListRecords
         }
         return $query;
     }
-
-    // funcion imprimir
-    public function imprimirRegistros()
-    {
-        // Por ahora solo probamos que funciona
-        dd('Botón Imprimir funcionando. Listo para avanzar al siguiente paso.');
-    }
-
 }

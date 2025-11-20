@@ -124,7 +124,7 @@ class PrestamosTable
                                 'prestamo' => 'Fecha de Préstamo',
                                 'devolucion' => 'Fecha de Devolución',
                             ])
-                            ->required()
+                            //->required()
                             ->native(false)
                             ->columnSpan(4),
 
