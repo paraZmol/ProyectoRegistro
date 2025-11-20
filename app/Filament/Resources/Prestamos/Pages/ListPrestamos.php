@@ -18,7 +18,14 @@ class ListPrestamos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->icon('heroicon-o-plus'),
+            // crear el boton de imprimr
+            Actions\Action::make('imprimir')
+                ->label('Imprimir')
+                ->icon('heroicon-o-printer')
+                ->color('success')
+                ->action('imprimirRegistros'),
         ];
     }
 
@@ -39,34 +46,11 @@ class ListPrestamos extends ListRecords
         return $query;
     }
 
-    // botno de registrar devolucion
-    /*public function handleDevolverAction(string $recordId): void
+    // funcion imprimir
+    public function imprimirRegistros()
     {
-        $prestamo = Prestamo::find($recordId);
+        // Por ahora solo probamos que funciona
+        dd('Botón Imprimir funcionando. Listo para avanzar al siguiente paso.');
+    }
 
-        $prestamo->momento_entrega = Carbon::now();
-        $prestamo->save();
-
-        $item = $prestamo->item;
-        $item->estado_disponibilidad = 'Disponible';
-        $item->save();
-
-        Notification::make()
-            ->title('Devolución Registrada')
-            ->success()
-            ->send();
-
-        // recargar la tabla
-        $this->js('window.location.reload()');
-    }*/
-
-    // imprimir boleta
-    /*public function handleImprimirAction(string $recordId): void
-    {
-        Notification::make()
-            ->title('Función no implementada')
-            ->body("Lógica para imprimir el préstamo ID: $recordId")
-            ->info()
-            ->send();
-    }*/
 }
