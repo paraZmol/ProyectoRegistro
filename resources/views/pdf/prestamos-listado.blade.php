@@ -125,12 +125,22 @@
             padding-top: 5px;
         }
         .page-number:after { content: counter(page); }
+        img{
+            height: 90px;
+            margin: 10px;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>Universidad Nacional Santiago Antúnez de Mayolo</h1>
+        {{-- lgo de la unasam --}}
+        <img
+            src="{{ public_path('images/logo-unasam.png') }}"
+            alt="Logo UNASAM"
+        >
+
         <p>Biblioteca Central - Sistema de Gestión de Préstamos</p>
         <p style="font-weight: bold; font-size: 14px; margin-top: 5px;">REPORTE GENERAL DE PRÉSTAMOS</p>
         <p>Fecha de Generación: {{ date('d/m/Y h:i A') }}</p>
@@ -162,13 +172,11 @@
         <thead>
             <tr>
                 <th style="width: 20px; text-align: center;">ID</th>
-                <th style="width: 150px;">Estudiante</th>
-                <th style="width: 80px;">Escuela</th>
-                <th style="width: 40px;">Tipo</th>
+                <th style="width: 200px;">Estudiante</th>
+                <th style="width: 150px;">Programa Académico</th>
                 <th>Detalle del Ítem</th>
                 <th style="width: 70px;">Préstamo</th>
                 <th style="width: 70px;">Devolución</th>
-                <th style="width: 70px; text-align: center;">Estado</th>
             </tr>
         </thead>
         <tbody>
@@ -185,9 +193,14 @@
                         </div>
                     </td>
 
-                    <td>{{ $prestamo->estudiante->escuela->escuela ?? '-' }}</td>
-
-                    <td>{{ $prestamo->item->tipo ?? '-' }}</td>
+                    <td>
+                        <div class="text-bold">
+                            {{ $prestamo->estudiante->escuela->escuela ?? '-' }}
+                        </div>
+                        <div class="text-small" style="color: #666;">
+                            {{ $prestamo->estudiante->escuela->facultad->facultad ?? '-' }}
+                        </div>
+                    </td>
 
                     <td>
                         @php
@@ -195,6 +208,10 @@
                             $tipo = trim($item->tipo ?? '');
                         @endphp
 
+                        {{-- Mostrar tipo como prefijo --}}
+                        <strong>{{ $tipo }}:</strong>
+
+                        {{-- Mostrar detalle dependiendo del tipo --}}
                         @if($tipo === 'Tablet')
                             @if($item->tablet)
                                 <strong>{{ $item->tablet->marca }} {{ $item->tablet->modelo }}</strong>
@@ -231,13 +248,6 @@
                         @endif
                     </td>
 
-                    <td style="text-align: center;">
-                        @if($prestamo->momento_entrega)
-                            <span class="status-badge status-devuelto">DEVUELTO</span>
-                        @else
-                            <span class="status-badge status-pendiente">PENDIENTE</span>
-                        @endif
-                    </td>
                 </tr>
             @empty
                 <tr>

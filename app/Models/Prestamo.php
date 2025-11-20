@@ -38,7 +38,7 @@ class Prestamo extends Model
     }
 
     // filtros para el pdf
-    public static function filtrarParaPDF(array $filtros)
+    /*public static function filtrarParaPDF(array $filtros)
 {
     $query = self::query();
 
@@ -56,5 +56,5 @@ class Prestamo extends Model
     }
 
     return $query->with(['estudiante', 'item.tablet', 'item.tesis'])->get();
-}
+}*/
 }

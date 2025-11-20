@@ -26,10 +26,6 @@ class ListPrestamos extends ListRecords
                 ->label('Imprimir')
                 ->icon('heroicon-o-printer')
                 ->color('success')
-                //->url(fn() => route('prestamos.imprimir', $this->getTable()->getFilters()))
-                //->url(fn () => route('prestamos.imprimir', ['filtros' => $this->tableFilters]))
-                //->url(fn() => route('prestamos.imprimir', ['filters' => $this->getTable()->getAppliedFilters()]))
-                //->url(fn () => route('prestamos.imprimir', request()->all()))
                 ->url(fn ($livewire) => route('prestamos.imprimir', [
                     'filtros' => $livewire->tableFilters
                 ]))
@@ -44,9 +40,6 @@ class ListPrestamos extends ListRecords
         try {
             // /todoo en una saola llamada
             $query->with(['estudiante', 'item.tablet', 'item.tesis']);
-            /*$query->with(['estudiante']); // Sobrescribe
-            $query->with(['item']);       // Sobrescribe
-            $query->with(['item.tablet', 'item.tesis']);*/
 
         } catch (\Exception $e) {
             Log::info('¡¡¡ERROR EN EAGER LOADING!!! ' . $e->getMessage());

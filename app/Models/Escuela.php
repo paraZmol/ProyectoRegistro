@@ -20,7 +20,7 @@ class Escuela extends Model
     // 1 escuela - 1 facultad
     public function facultad(): BelongsTo
     {
-        return $this->belongsTo(Facultad::class);
+        return $this->belongsTo(Facultad::class, 'facultad_id');
     }
 
     // 1 escuela - M estudiantes
