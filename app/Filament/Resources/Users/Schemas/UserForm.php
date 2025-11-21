@@ -34,11 +34,11 @@ class UserForm
                         TextInput::make('password')
                             ->password()
                             ->revealable()
-                            ->required(fn (string $operation): bool => $operation === 'create')
-                            ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                            ->dehydrated(fn (?string $state): bool => filled($state))
-                            ->maxLength(255)
-                            ->confirmed(fn (string $operation): bool => $operation === 'create'),
+                            ->required(fn ($operation) => $operation === 'create')
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->confirmed()
+                            ->maxLength(255),
 
                         TextInput::make('password_confirmation')
                             ->label('Confirmar Contraseña')

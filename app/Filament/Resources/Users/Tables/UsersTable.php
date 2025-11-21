@@ -39,12 +39,10 @@ class UsersTable
                 //
             ])
             ->actions([
-                //ActionGroup::make([
-                    //EditAction::make(),
-                    //DeleteAction::make()
-                        // El usuario no se puede borrar a sí mismo
-                        //->visible(fn ($record) => $record->id !== auth()->id()),
-                //])
+                EditAction::make()
+                    ->visible(fn ($record) =>
+                        !$record->hasRole('super_admin')
+                    ),
             ])
             ->recordActions([
                 EditAction::make(),

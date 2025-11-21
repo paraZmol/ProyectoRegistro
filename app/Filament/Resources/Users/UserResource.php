@@ -8,65 +8,56 @@ use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\Schemas\UserForm;
 use App\Filament\Resources\Users\Tables\UsersTable;
 use App\Models\User;
-use BackedEnum;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use UnitEnum; // <-- IMPORTANTE
+use BackedEnum;
+use UnitEnum;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    // ----- AQUÍ ESTÁN LOS TIPOS CORRECTOS -----
-
-    // Icono (línea 22) SÓLO ACEPTA ?string
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
-
     protected static ?string $navigationLabel = 'Gestión de Usuarios';
-    protected static ?string $modelLabel = 'Usuario';
-
-    // Grupo (línea 26) SÍ ACEPTA UnitEnum
+    protected static ?string $modelLabel       = 'Usuario';
     protected static string|UnitEnum|null $navigationGroup = 'Administración';
-
-    // -------------------------------------------
-
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function form(Schema $schema): Schema
+    public static function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
         return UserForm::configure($schema);
     }
 
-    public static function table(Table $table): Table
+    public static function table(\Filament\Tables\Table $table): \Filament\Tables\Table
     {
         return UsersTable::configure($table);
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListUsers::route('/'),
+            'index'  => ListUsers::route('/'),
             'create' => CreateUser::route('/create'),
-            'edit' => EditUser::route('/{record}/edit'),
+            'edit'   => EditUser::route('/{record}/edit'),
         ];
     }
 
-    // ----- LÓGICA PARA OCULTAR AL SUPER ADMIN -----
-    public static function getEloquentQuery(): Builder
+    /** Filtrado del super_admin y del usuario actual */
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
+        $userId = Filament::auth()->id(); // ← solución REAL
+
         return parent::getEloquentQuery()
-            ->whereDoesntHave('roles', function ($query) {
-                $query->where('name', 'super_admin');
-            })
-            ->where('id', '!=', auth()->id());
+            ->whereDoesntHave('roles', fn ($q) =>
+                $q->where('name', 'super_admin')
+            )
+            ->when($userId, fn ($q) =>
+                $q->where('id', '!=', $userId)
+            );
     }
 }
