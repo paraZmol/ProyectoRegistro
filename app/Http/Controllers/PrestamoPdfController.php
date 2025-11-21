@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
+use App\Models\Estudiante;
 
 class PrestamoPdfController extends Controller
 {
@@ -44,23 +46,39 @@ class PrestamoPdfController extends Controller
                 ->with(['estudiante.escuela.facultad', 'item.tablet', 'item.tesis'])
                 ->orderBy('created_at', 'desc');
 
+            $textosFiltros = []; // para guardar los filtros
+
             // para reconstruir el manual de filtro y llevarlos a eloquent
             // filtro de prestamos activos
             if (!empty($filtros['prestamos_activos']['isActive'])) {
                 $query->whereNull('momento_entrega');
+                $textosFiltros[] = "Estado: Solo Préstamos Activos (No devueltos)";
             }
 
             // filtro de estudiantes
             if (!empty($filtros['estudiante_id']['value'])) {
-                $query->where('estudiante_id', $filtros['estudiante_id']['value']);
+                //$query->where('estudiante_id', $filtros['estudiante_id']['value']);
+                $estId = $filtros['estudiante_id']['value'];
+                $query->where('estudiante_id', $estId);
+
+                // buscamos el nombre para el reporte
+                $estudiante = Estudiante::find($estId);
+                if ($estudiante) {
+                    $textosFiltros[] = "Estudiante: {$estudiante->apellidos}, {$estudiante->nombres}";
+                }
             }
 
             // filtro de carnet
             if (!empty($filtros['carnet']['valor'])) {
+                /*$carnet = $filtros['carnet']['valor'];
+                $query->whereHas('estudiante', function($q) use ($carnet) {
+                    $q->where('carnet', 'like', "%{$carnet}%");
+                });*/
                 $carnet = $filtros['carnet']['valor'];
                 $query->whereHas('estudiante', function($q) use ($carnet) {
                     $q->where('carnet', 'like', "%{$carnet}%");
                 });
+                $textosFiltros[] = "Carnet contiene: '{$carnet}'";
             }
 
             // filtro de fechas
@@ -72,11 +90,19 @@ class PrestamoPdfController extends Controller
                     ? 'momento_entrega'
                     : 'momento_prestamo';
 
+                $tipoFechaTexto = ($campo === 'momento_entrega') ? 'Devolución' : 'Préstamo';
+
                 if (!empty($datosFecha['desde'])) {
                     $query->whereDate($campo, '>=', $datosFecha['desde']);
+
+                    $fechaDesde = Carbon::parse($datosFecha['desde'])->format('d/m/Y');
+                    $textosFiltros[] = "Fecha {$tipoFechaTexto} Desde: {$fechaDesde}";
                 }
                 if (!empty($datosFecha['hasta'])) {
                     $query->whereDate($campo, '<=', $datosFecha['hasta']);
+
+                    $fechaHasta = Carbon::parse($datosFecha['hasta'])->format('d/m/Y');
+                    $textosFiltros[] = "Fecha {$tipoFechaTexto} Hasta: {$fechaHasta}";
                 }
             }
 
@@ -93,6 +119,8 @@ class PrestamoPdfController extends Controller
                         $query->whereHas('item', function (Builder $q) {
                             $q->where('tipo', 'Tablet');
                         });
+
+                        $textosFiltros[] = "Área: Gestión de Tablets";
                     }
 
                     // para el Encargado de TESIS
@@ -100,6 +128,8 @@ class PrestamoPdfController extends Controller
                         $query->whereHas('item', function (Builder $q) {
                             $q->where('tipo', 'Tesis');
                         });
+
+                        $textosFiltros[] = "Área: Gestión de Tesis";
                     }
                 }
                 // ---------------------------------------------------------
@@ -110,7 +140,7 @@ class PrestamoPdfController extends Controller
             // generar el pdf
             $pdf = Pdf::loadView('pdf.prestamos-listado', [
                 'prestamos' => $prestamos,
-                'filtros' => $filtros // para mostrar los filtro en el pdf arriba
+                'filtrosTexto' => $textosFiltros // para mostrar los filtro en el pdf arriba
             ]);
 
             $pdf->setPaper('a4', 'landscape');

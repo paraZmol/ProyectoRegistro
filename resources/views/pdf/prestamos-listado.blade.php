@@ -147,26 +147,27 @@
     </div>
     <div class="divider"></div>
 
-    @if(collect($filtros)->filter()->isNotEmpty())
-        <div class="filtros-box">
-            <div class="filtros-title">Filtros Aplicados al Reporte:</div>
+    {{-- para mostrar lo filtros --}}
 
-            @if(!empty($filtros['fecha_inicio']) || !empty($filtros['fecha_fin']))
+    <div class="filtros-box">
+        <div class="filtros-title">Filtros Aplicados al Reporte:</div>
+
+        @if(isset($filtrosTexto) && count($filtrosTexto) > 0)
+            {{-- recorrer el array de texto si es que hay filtros --}}
+            @foreach($filtrosTexto as $texto)
                 <span class="filtro-tag">
-                    <strong>Fecha:</strong>
-                    {{ $filtros['fecha_inicio'] ?? 'Inicio' }} - {{ $filtros['fecha_fin'] ?? 'Hoy' }}
+                    {{ $texto }}
                 </span>
-            @endif
+            @endforeach
+        @else
+            {{-- mensaje en caso de no filtros --}}
+            <span style="font-size: 9px; color: #666; font-style: italic; padding: 2px 6px;">
+                Ninguno (Mostrando todos los registros)
+            </span>
+        @endif
+    </div>
 
-            @if(!empty($filtros['estudiante']))
-                <span class="filtro-tag"><strong>Estudiante:</strong> {{ $filtros['estudiante'] }}</span>
-            @endif
-
-            @if(!empty($filtros['tipo_item']))
-                <span class="filtro-tag"><strong>Tipo:</strong> {{ ucfirst($filtros['tipo_item']) }}</span>
-            @endif
-        </div>
-    @endif
+    {{-- fin filtros --}}
 
     <table>
         <thead>
