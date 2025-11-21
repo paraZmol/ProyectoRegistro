@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Actions\Action;
 
 class PrestamoResource extends Resource
@@ -57,7 +58,37 @@ class PrestamoResource extends Resource
     // problema N+1
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        // obtenemos la consulta base
+        $query = parent::getEloquentQuery()
             ->with(['estudiante', 'item.tablet', 'item.tesis']);
+
+        // obtenemos al usuario actual
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Si no hay usuario logueado (raro, pero posible), devolvemos la consulta tal cual
+        if (!$user) {
+            return $query;
+        }
+
+        // aplicamos el filtro de seguridad según el Rol
+
+        // Encargado de TABLET
+        if ($user->hasRole('Encargado de Tablet')) {
+            // Solo traemos préstamos cuyo item sea tipo 'Tablet'
+            $query->whereHas('item', function (Builder $q) {
+                $q->where('tipo', 'Tablet');
+            });
+        }
+
+        // Encargado de TESIS
+        if ($user->hasRole('Encargado de Tesis')) {
+            // Solo traemos préstamos cuyo item sea tipo 'Tesis'
+            $query->whereHas('item', function (Builder $q) {
+                $q->where('tipo', 'Tesis');
+            });
+        }
+
+        return $query;
     }
 }
