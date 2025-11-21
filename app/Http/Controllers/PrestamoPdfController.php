@@ -18,7 +18,7 @@ class PrestamoPdfController extends Controller
     public function imprimir(Prestamo $prestamo)
     {
         // datos relacionados ale prestamo
-        $prestamo->load(['estudiante.escuela', 'item.tablet', 'item.tesis']);
+        $prestamo->load(['estudiante.escuela.facultad', 'item.tablet', 'item.tesis']);
 
         //crear el pdf
         $pdf = Pdf::loadView('pdf.boleta', ['prestamo'=> $prestamo]);

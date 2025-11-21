@@ -125,6 +125,10 @@
                     <th>Escuela:</th>
                     <td>{{ $prestamo->estudiante->escuela->escuela }}</td>
                 </tr>
+                <tr>
+                    <th>Facultad:</th>
+                    <td>{{ $prestamo->estudiante->escuela->facultad->facultad ?? '-' }}</td>
+                </tr>
             </table>
         </div>
 
