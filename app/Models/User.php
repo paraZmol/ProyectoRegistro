@@ -51,7 +51,15 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel  $panel): bool
     {
-        return $this->hasRole(['super_admin', 'Administrador', 'Encargado de Tablet']);
+        /* si agregamos o creamos mas roles
+        * debemos de agrear manualmente el nuevo rol
+       * para que el usuario pueda iniciar sesion */
+        return $this->hasRole([
+            'super_admin',
+            'Administrador',
+            'Encargado de Tablet',
+            'Encargado de Tesis'
+        ]);
         //return true;
     }
 

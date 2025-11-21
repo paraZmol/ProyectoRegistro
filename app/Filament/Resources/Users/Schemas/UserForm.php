@@ -8,6 +8,7 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 
 class UserForm
 {
@@ -34,9 +35,12 @@ class UserForm
                         TextInput::make('password')
                             ->password()
                             ->revealable()
-                            ->required(fn ($operation) => $operation === 'create')
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
-                            ->dehydrated(fn ($state) => filled($state))
+                            // 1. REGLA: Obligatorio solo si estamos CREANDO el usuario
+                            ->required(fn (string $operation): bool => $operation === 'create')
+
+                            // 2. REGLA: Solo enviar a la BD si el usuario escribió algo
+                            // (Esto permite dejarlo vacío para no cambiar la contraseña)
+                            ->dehydrated(fn (?string $state): bool => filled($state))
                             ->confirmed()
                             ->maxLength(255),
 
@@ -44,9 +48,10 @@ class UserForm
                             ->label('Confirmar Contraseña')
                             ->password()
                             ->revealable()
-                            ->dehydrated(false)
-                            ->visible(fn (string $operation): bool => $operation === 'create')
-                            ->required(fn (string $operation): bool => $operation === 'create'),
+                            // 4. REGLA: Misma lógica, obligatorio solo al crear
+                            ->required(fn (string $operation): bool => $operation === 'create')
+                            // 5. Visible SIEMPRE (quitamos la condición de visibility)
+                            ->dehydrated(false),
                     ])->columns(2),
 
                 // slector de rol

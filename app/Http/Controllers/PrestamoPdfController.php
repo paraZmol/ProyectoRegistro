@@ -70,10 +70,6 @@ class PrestamoPdfController extends Controller
 
             // filtro de carnet
             if (!empty($filtros['carnet']['valor'])) {
-                /*$carnet = $filtros['carnet']['valor'];
-                $query->whereHas('estudiante', function($q) use ($carnet) {
-                    $q->where('carnet', 'like', "%{$carnet}%");
-                });*/
                 $carnet = $filtros['carnet']['valor'];
                 $query->whereHas('estudiante', function($q) use ($carnet) {
                     $q->where('carnet', 'like', "%{$carnet}%");
