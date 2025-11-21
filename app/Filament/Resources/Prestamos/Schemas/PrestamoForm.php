@@ -14,6 +14,7 @@ use App\Models\Item;
 use App\Models\Prestamo;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PrestamoForm
 {
@@ -46,8 +47,28 @@ class PrestamoForm
                             ->relationship(
                                 name: 'item',
                                 titleAttribute: 'id',
-                                modifyQueryUsing: fn (Builder $query) =>
-                                    $query->where('estado_disponibilidad', 'Disponible')
+                                modifyQueryUsing: function (Builder $query) {
+                                    // Mostrar solo items disponibles
+                                    $query->where('estado_disponibilidad', 'Disponible');
+
+                                    // FILTRADO POR ROL:
+                                    //$user = auth()->user();
+                                    $user = Auth::user();
+                                    /** @var \App\Models\User $user */ // <--- AGREGA ESTA LÍNEA MÁGICA -- investigar la linea magica
+                                    if ($user) {
+                                        if ($user->hasRole('Encargado de Tablet')) {
+                                            // solo Tablets
+                                            $query->where('tipo', 'Tablet');
+                                        } elseif ($user->hasRole('Encargado de Tesis')) {
+                                            // solo Tesis
+                                            $query->where('tipo', 'Tesis');
+                                        }
+                                        // admin / super_admin no se filtran aquí
+                                    }
+
+                                    return $query;
+                                }
+
                             )
                             ->getOptionLabelFromRecordUsing(function (Item $record) {
                                 $record->loadMissing(trim($record->tipo) === 'Tablet' ? 'tablet' : 'tesis');
@@ -91,6 +112,19 @@ class PrestamoForm
                                         // si hay algun prestamos rechazamos la validacion con un mensaje
                                         if ($prestamoActivo) {
                                             $fail("El estudiante ya tiene un préstamo activo de una {$item->tipo}.");
+                                        }
+
+                                        // NUEVA validación: comprobar que el rol del usuario coincide con el tipo del item
+                                        //$user = auth()->user();
+                                        $user = Auth::user();
+                                        /** @var \App\Models\User $user */ // <--- AGREGA ESTA LÍNEA MÁGICA -- investigar la linea magica
+                                        if ($user) {
+                                            if ($user->hasRole('Encargado de Tablet') && strtolower(trim($item->tipo)) !== 'tablet') {
+                                                $fail('No tienes permiso para prestar ese tipo de ítem.');
+                                            }
+                                            if ($user->hasRole('Encargado de Tesis') && strtolower(trim($item->tipo)) !== 'tesis') {
+                                                $fail('No tienes permiso para prestar ese tipo de ítem.');
+                                            }
                                         }
                                     };
                                 },
