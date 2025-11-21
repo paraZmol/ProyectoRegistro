@@ -7,6 +7,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class PrestamoPdfController extends Controller
 {
@@ -77,6 +79,30 @@ class PrestamoPdfController extends Controller
                     $query->whereDate($campo, '<=', $datosFecha['hasta']);
                 }
             }
+
+                // ---------------------------------------------------------
+                // Imprimible por rol
+                // ---------------------------------------------------------
+
+                /** @var \App\Models\User $user */
+                $user = Auth::user();
+
+                if ($user) {
+                    // para el Encargado de TABLET
+                    if ($user->hasRole('Encargado de Tablet')) {
+                        $query->whereHas('item', function (Builder $q) {
+                            $q->where('tipo', 'Tablet');
+                        });
+                    }
+
+                    // para el Encargado de TESIS
+                    if ($user->hasRole('Encargado de Tesis')) {
+                        $query->whereHas('item', function (Builder $q) {
+                            $q->where('tipo', 'Tesis');
+                        });
+                    }
+                }
+                // ---------------------------------------------------------
 
             // obtener los resultados
             $prestamos = $query->get();
