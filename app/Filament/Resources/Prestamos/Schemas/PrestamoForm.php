@@ -17,7 +17,7 @@ use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
-// servicios
+// Servicios
 use App\Services\EstudianteFinder;
 
 class PrestamoForm
@@ -30,36 +30,30 @@ class PrestamoForm
                 Section::make('Registrar Nuevo Prestamo')
                     ->schema([
 
-                        // ===========================
-                        // 1. campo para escribir el dni
-                        // ===========================
-
+                        // dni - carnet
                         TextInput::make('dni')
                             ->label('DNI / Carnet del Estudiante')
                             ->numeric()
                             ->length(8)
                             ->required()
-                            ->live(onBlur: true) // cuando salga del input
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, callable $set) {
 
                                 if (!$state || strlen($state) !== 8) {
                                     return;
                                 }
 
-                                // buscar o crear estudiante
+                                // llamada al EstudianteFinder
                                 $finder = app(EstudianteFinder::class);
                                 $est = $finder->buscarOCrearPorDni($state);
 
                                 if ($est) {
-                                    // selecciona al estudiante encontrado
+                                    // autoseleccionar estudiante
                                     $set('estudiante_id', $est->id);
                                 }
                             }),
 
-                        // ===========================
-                        // 2. select del estudiante
-                        // ===========================
-
+                        // select estudiante
                         Select::make('estudiante_id')
                             ->label('Estudiante')
                             ->relationship('estudiante', 'apellidos')
@@ -76,10 +70,7 @@ class PrestamoForm
                             ->default(now())
                             ->required(),
 
-                        // ===========================
-                        // ITEM
-                        // ===========================
-
+                        // item a prestar
                         Select::make('item_id')
                             ->label('Item')
                             ->relationship(
@@ -87,7 +78,6 @@ class PrestamoForm
                                 titleAttribute: 'id',
                                 modifyQueryUsing: function (Builder $query) {
 
-                                    // Mostrar solo items disponibles
                                     $query->where('estado_disponibilidad', 'Disponible');
 
                                     $user = Auth::user();
@@ -137,7 +127,7 @@ class PrestamoForm
                                             return;
                                         }
 
-                                        // validar prestamo activo
+                                        // validacion de prestamos activos del mismo tipo
                                         $prestamoActivo = Prestamo::where('estudiante_id', $estudianteId)
                                             ->whereNull('momento_entrega')
                                             ->whereHas('item', function ($q) use ($item) {
@@ -149,7 +139,7 @@ class PrestamoForm
                                             $fail("El estudiante ya tiene un prestamo activo de una {$item->tipo}.");
                                         }
 
-                                        // validar rol del usuario
+                                        // validacion segun roles
                                         $user = Auth::user();
                                         /** @var \App\Models\User $user */
 
@@ -166,10 +156,7 @@ class PrestamoForm
                                 }
                             ]),
 
-                        // ===========================
-                        // CAMPOS EXTRA PARA TABLETS
-                        // ===========================
-
+                        // actividad tablet
                         Select::make('actividad_tablet')
                             ->label('Actividad a realizar con la Tablet')
                             ->options([
@@ -190,10 +177,7 @@ class PrestamoForm
                             ->required()
                             ->visible(fn (Get $get) => $get('actividad_tablet') === 'Otro'),
 
-                        // ===========================
-                        // INFO EXTRA PARA TESIS
-                        // ===========================
-
+                        // info tesis
                         Placeholder::make('info_tesis')
                             ->content('Este prestamo es una Tesis, no se requiere actividad.')
                             ->visible(function (Get $get) {
@@ -205,7 +189,6 @@ class PrestamoForm
                     ->columns(2),
 
             ])
-
             ->columns(1);
     }
 }

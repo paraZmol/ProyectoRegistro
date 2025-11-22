@@ -7,13 +7,6 @@ use App\Models\Escuela;
 use App\Models\Facultad;
 use Illuminate\Support\Facades\Log;
 
-/**
- * este servicio se encarga de toda la magia de buscar un estudiante
- * primero intenta buscar en la bd
- * si no existe, llama a la api unasam
- * si la api lo devuelve, crea escuela, facultad y estudiante
- * si algo falla devuelve null
- */
 class EstudianteFinder
 {
     protected $unasam;
@@ -24,102 +17,86 @@ class EstudianteFinder
     }
 
     /**
-     * busca un estudiante por dni (o carnet, que es lo mismo)
-     * si no existe lo crea usando la api
+     * busca un estudiante por DNI/carnet.
+     * si no existe, consulta API UNASAM y lo crea junto con escuela/facultad.
      */
     public function buscarOCrearPorDni(string $dni): ?Estudiante
     {
-        // primero buscamos en bd
+        // buscar estudiante localmente
         $est = Estudiante::where('carnet', $dni)->first();
-
-        if ($st = $est) {
-            // si existe ya no hacemos nada
-            return $st;
+        if ($est) {
+            return $est;
         }
 
-        // si no existe, usamos la api unasam
+        // consultar API UNASAM
         $data = $this->unasam->obtenerDNI($dni);
-
         if (!$data) {
-            // si la api murio o no encontro nada
             return null;
         }
 
-        // datos basicos del estudiante
-        $apellidos = $data['apellidos'] ?? null;
-        $nombres = $data['nombres'] ?? null;
-        $nombreEscuela = $data['escuela'] ?? null;
-        $nombreFacultad = $data['facultad'] ?? null;
-
-        if (!$apellidos || !$nombres || !$nombreEscuela || !$nombreFacultad) {
-            // si falta algun dato importante mejor no crear nada
-            Log::warning("datos incompletos de la api para dni {$dni}");
+        // validar datos obligatorios
+        if (
+            empty($data['alumno']['apellido_paterno']) ||
+            empty($data['alumno']['apellido_materno']) ||
+            empty($data['alumno']['nombres']) ||
+            empty($data['escuela']['nombre']) ||
+            empty($data['facultad']['nombre'])
+        ) {
+            Log::warning("API UNASAM devolvió datos incompletos para DNI {$dni}");
             return null;
         }
 
-        // ===========================
-        // FACULTAD
-        // ===========================
+        // datos del alumno
+        $apellidos = trim(
+            $data['alumno']['apellido_paterno'] . ' ' .
+            $data['alumno']['apellido_materno']
+        );
 
-        // buscar facultad por su nombre completo
-        $facultad = Facultad::where('nombre', $nombreFacultad)->first();
+        $nombres = $data['alumno']['nombres'];
+        $nombreEscuela = trim($data['escuela']['nombre']);
+        $nombreFacultadOriginal = trim($data['facultad']['nombre']);
 
-        if (!$facultad) {
-            // si no existe la creamos
-            $sigla = $this->generarSigla($nombreFacultad); // primera letra de cada palabra
-            $facultad = Facultad::create([
-                'nombre' => $nombreFacultad,
-                'sigla' => $sigla,
-            ]);
-        }
+        // Facultad de X
+        $nombreFacultad = "Facultad de " . $nombreFacultadOriginal;
 
-        // ===========================
-        // ESCUELA
-        // ===========================
+        // crear o buscar facultad
+        $facultad = Facultad::firstOrCreate(
+            ['facultad' => $nombreFacultad],
+            ['sigla' => $this->generarSigla($nombreFacultad)]
+        );
 
-        // buscar escuela por nombre
-        $escuela = Escuela::where('nombre', $nombreEscuela)->first();
+        // crear o buscar escuela
+        $escuela = Escuela::firstOrCreate(
+            ['escuela' => $nombreEscuela],
+            [
+                'sigla' => $this->generarSigla($nombreEscuela),
+                'facultad_id' => $facultad->id
+            ]
+        );
 
-        if (!$escuela) {
-            // si no existe la creamos
-            $sigla = $this->generarSigla($nombreEscuela); // primera letra de cada palabra
-            $escuela = Escuela::create([
-                'nombre' => $nombreEscuela,
-                'sigla' => $sigla,
-                'facultad_id' => $facultad->id,
-            ]);
-        }
-
-        // ===========================
-        // ESTUDIANTE
-        // ===========================
-
-        $estudiante = Estudiante::create([
-            'carnet' => $dni,      // el carnet es igual al dni
-            'apellidos' => $apellidos,
-            'nombres' => $nombres,
-            'escuela_id' => $escuela->id,
+        // crear estudiante
+        return Estudiante::create([
+            'carnet'      => $dni,
+            'apellidos'   => $apellidos,
+            'nombres'     => $nombres,
+            'escuela_id'  => $escuela->id,
         ]);
-
-        return $estudiante;
     }
 
-    /**
-     * genera la sigla tomando la primera letra de cada palabra
-     * ejemplo: "Facultad de Ciencias" -> "FC"
-     */
+    // generar siglas
     private function generarSigla(string $nombre): string
     {
-        // dividir palabras
-        $palabras = explode(' ', trim($nombre));
+        $palabras = explode(' ', strtolower($nombre));
 
-        // tomar la primera letra de cada palabra y poner en mayuscula
+        $excluir = ['de', 'del', 'la', 'las', 'los', 'e', 'y'];
+
         $sigla = '';
         foreach ($palabras as $p) {
-            if (strlen($p) > 0) {
+            if (!in_array($p, $excluir) && strlen($p) > 0) {
                 $sigla .= strtoupper($p[0]);
             }
         }
+
         return $sigla;
     }
 }
