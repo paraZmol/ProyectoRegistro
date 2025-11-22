@@ -22,11 +22,10 @@ class EstudianteTable
                     ->sortable(),
 
                 TextColumn::make('apellidos')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('nombres')
-                    ->searchable()
+                    ->label('Estudiante')
+                    ->formatStateUsing(fn ($record): string =>
+                        $record->apellidos . ', ' . $record->nombres)
+                    ->searchable(['apellidos', 'nombres'])
                     ->sortable(),
 
                 TextColumn::make('escuela.escuela')
@@ -34,7 +33,7 @@ class EstudianteTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('escuela.facultad.facultad')
+                TextColumn::make('escuela.facultad.sigla')
                     ->label('Facultad')
                     ->searchable()
                     ->sortable()
@@ -44,7 +43,7 @@ class EstudianteTable
                     ->label('Fecha de Creación')
                     ->dateTime('d/m/Y')
                     ->sortable()
-                    ->toggleable(true),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('escuela_id')

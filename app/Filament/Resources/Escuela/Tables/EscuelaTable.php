@@ -21,14 +21,15 @@ class EscuelaTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('sigla')
+                    ->label('Sigla')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('facultad.facultad')
                     ->label('Facultad')
                     ->searchable()
                     ->sortable(),
-
-                TextColumn::make('sigla')
-                    ->label('Sigla')
-                    ->searchable(),
 
                 TextColumn::make('created_at')
                     ->label('Fecha de Creación')
