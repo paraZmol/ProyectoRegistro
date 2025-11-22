@@ -36,25 +36,4 @@ class Prestamo extends Model
     {
         return $this->belongsTo(Item::class);
     }
-
-    // filtros para el pdf
-    /*public static function filtrarParaPDF(array $filtros)
-{
-    $query = self::query();
-
-    // Rango fechas
-    if (!empty($filtros['desde']) && !empty($filtros['hasta'])) {
-        $query->whereBetween('fecha_prestamo', [
-            $filtros['desde'],
-            $filtros['hasta']
-        ]);
-    }
-
-    // Solo activos
-    if (!empty($filtros['solo_activos']) && $filtros['solo_activos'] === true) {
-        $query->whereNull('fecha_devolucion');
-    }
-
-    return $query->with(['estudiante', 'item.tablet', 'item.tesis'])->get();
-}*/
 }
