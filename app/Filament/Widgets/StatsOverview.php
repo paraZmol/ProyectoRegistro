@@ -7,6 +7,7 @@ use App\Models\Prestamo;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class StatsOverview extends BaseWidget
 {
@@ -14,59 +15,63 @@ class StatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        // calculos de prestamos
-        // tablets
-        $prestamosTablets = Prestamo::whereNull('momento_entrega')
-            ->whereHas('item', fn (Builder $query) => $query->where('tipo', 'Tablet'))
-            ->count();
+        $user = Auth::user();
+        /** @var \App\Models\User $user */
 
-        // tesis
-        $prestamosTesis = Prestamo::whereNull('momento_entrega')
-            ->whereHas('item', fn (Builder $query) => $query->where('tipo', 'Tesis'))
-            ->count();
+        $stats = [];
 
+        // logica de tablets
+        // visible para tablet o admin
+        if ($user->hasRole(['super_admin', 'Administrador', 'Encargado de Tablet'])) {
 
-        // calculo de inventario
-        // tablet
-        $totalTablets = Item::where('tipo', 'Tablet')->count();
-        $tabletsDisp = Item::where('tipo', 'Tablet')->where('estado_disponibilidad', 'Disponible')->count();
-        // tesis
-        $totalTesis = Item::where('tipo', 'Tesis')->count();
-        $tesisDisp = Item::where('tipo', 'Tesis')->where('estado_disponibilidad', 'Disponible')->count();
+            // calculos para contar
+            $totalTablets = Item::where('tipo', 'Tablet')->count();
+            $tabletsDisp = Item::where('tipo', 'Tablet')->where('estado_disponibilidad', 'Disponible')->count();
 
+            $prestamosTablets = Prestamo::whereNull('momento_entrega')
+                ->whereHas('item', fn (Builder $query) => $query->where('tipo', 'Tablet'))
+                ->count();
 
-        return [
-            // tarjetas de pendientes
-            // tablet
-            Stat::make('Préstamos Activos (Tablets)', $prestamosTablets)
+            // agregar tarjetas al array
+            $stats[] = Stat::make('Préstamos Activos (Tablets)', $prestamosTablets)
                 ->description('Tablets sin devolver')
                 ->descriptionIcon('heroicon-m-clock')
-                ->color('warning'), // amarillo para pendiente
+                ->color('warning');
 
-            // tesis
-            Stat::make('Préstamos Activos (Tesis)', $prestamosTesis)
-                ->description('Tesis sin devolver')
-                ->descriptionIcon('heroicon-m-clock')
-                ->color('warning'),
-
-            // tarjetas de inventario
-            // tablets
-            Stat::make('Inventario Tablets', "{$tabletsDisp} de {$totalTablets}")
+            $stats[] = Stat::make('Inventario Tablets', "{$tabletsDisp} de {$totalTablets}")
                 ->description('Disponibles / Total')
                 ->descriptionIcon('heroicon-m-device-tablet')
-                ->color($tabletsDisp > 0 ? 'success' : 'danger'),
+                ->color($tabletsDisp > 0 ? 'success' : 'danger');
+        }
 
-            // tesis
-            Stat::make('Inventario Tesis', "{$tesisDisp} de {$totalTesis}")
+        // logica para tesis
+        // visible para tesis o admin
+        if ($user->hasRole(['super_admin', 'Administrador', 'Encargado de Tesis'])) {
+
+            // calculos
+            $totalTesis = Item::where('tipo', 'Tesis')->count();
+            $tesisDisp = Item::where('tipo', 'Tesis')->where('estado_disponibilidad', 'Disponible')->count();
+
+            $prestamosTesis = Prestamo::whereNull('momento_entrega')
+                ->whereHas('item', fn (Builder $query) => $query->where('tipo', 'Tesis'))
+                ->count();
+
+            // agregar tarjetas al array
+            $stats[] = Stat::make('Préstamos Activos (Tesis)', $prestamosTesis)
+                ->description('Tesis sin devolver')
+                ->descriptionIcon('heroicon-m-clock')
+                ->color('warning');
+
+            $stats[] = Stat::make('Inventario Tesis', "{$tesisDisp} de {$totalTesis}")
                 ->description('Disponibles / Total')
                 ->descriptionIcon('heroicon-m-book-open')
-                ->color('primary'),
-        ];
+                ->color('primary');
+        }
+
+        return $stats;
     }
 
     // modificar espacios
-    protected int | string | array $columnSpan = 'full';
-
     protected function getColumns(): int
     {
         return 2; // 2 tarjetas por fila
