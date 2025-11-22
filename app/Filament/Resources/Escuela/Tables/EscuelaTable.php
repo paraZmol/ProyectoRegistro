@@ -35,7 +35,7 @@ class EscuelaTable
                     ->label('Fecha de Creación')
                     ->dateTime('d/m/Y')
                     ->sortable()
-                    ->toggleable(true),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
