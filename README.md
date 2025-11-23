@@ -86,7 +86,7 @@ Sigue estos pasos para levantar el proyecto en tu entorno local:
 ![Vista del Login con fondo institucional](screenshots/login.jpg)
 
 ### Dashboard con Gráficos
-![Vista del Escritorio con estadísticas](screenshots/dash.jpg)(screenshots/graf_tab.jpg)(screenshots/graf_tes.jpg)
+![Vista del Escritorio con estadísticas](screenshots/dash.jpg)![Vista del Gráfico de Tablets](screenshots/graf_tab.jpg)![Vista del Gráfico de Tesis](screenshots/graf_tes.jpg)
 
 ### Reporte PDF Generado
 ![Ejemplo de lista de préstamos](screenshots/pdf.jpg)
