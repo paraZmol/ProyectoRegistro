@@ -45,7 +45,7 @@ Sigue estos pasos para levantar el proyecto en tu entorno local:
 
 1.  **Clonar el repositorio**
     ```bash
-    git clone [https://github.com/paraZmol/ProyectoRegistro.git](https://github.com/paraZmol/ProyectoRegistro.git)
+    git clone https://github.com/paraZmol/ProyectoRegistro.git
     cd retate
     ```
 
