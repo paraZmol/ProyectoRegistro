@@ -93,7 +93,7 @@ Sigue estos pasos para levantar el proyecto en tu entorno local:
 
 ## Nota sobre la API de Estudiantes
 
-Este proyecto incluye una integración con la API de la UNASAM para la obtención de datos de estudiantes. Por motivos de seguridad, las credenciales de acceso y endpoints no se incluyen en el repositorio público. El sistema está configurado para funcionar en modo "Demo" si no se detectan dichas credenciales en el archivo `.env`.
+Este proyecto incluye una integración con la API para la obtención de datos de estudiantes. Por motivos de seguridad, las credenciales de acceso y endpoints no se incluyen en el repositorio público. El sistema está configurado para funcionar en modo "Demo" si no se detectan dichas credenciales en el archivo `.env`.
 
 ---
 Desarrollado por **Nuñez Infantes Jorge** - Ingeniero de Sistemas
