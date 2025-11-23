@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Prestamo;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PrestamosTabletsChart extends ChartWidget
 {
@@ -62,5 +63,19 @@ class PrestamosTabletsChart extends ChartWidget
                 ],
             ],
         ];
+    }
+    // permisos de vista tablets
+    public static function canView(): bool
+    {
+        // obtenemos el usuario
+        $user = Auth::user();
+        /** @var \App\Models\User $user */
+
+        // ocultar
+        if (!$user) {
+            return false;
+        }
+
+        return $user->hasRole(['super_admin', 'Administrador', 'Encargado de Tablet']);
     }
 }

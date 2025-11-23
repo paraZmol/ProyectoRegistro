@@ -19,6 +19,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\View\PanelsRenderHook;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -29,6 +30,19 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+                // logo del login
+                ->brandLogo(asset('images/logo_frase.png'))
+                ->brandLogoHeight('7rem')// tamaño
+                ->renderHook(// configuracion del logo del dashboard
+                    PanelsRenderHook::HEAD_END,
+                    fn () => view('filament.logo-size-fix')
+                )
+            ->favicon(asset('images/logo-unasam.png'))// icono del sistema
+            // fondo personalizado del login
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn () => view('filament.login-background')
+            )
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
             ])

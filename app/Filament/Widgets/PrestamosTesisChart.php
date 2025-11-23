@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Prestamo;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PrestamosTesisChart extends ChartWidget
 {
@@ -62,5 +63,18 @@ class PrestamosTesisChart extends ChartWidget
                 ],
             ],
         ];
+    }
+
+    // permisos de vista tesis
+    public static function canView(): bool
+    {
+        $user = Auth::user();
+        /** @var \App\Models\User $user */
+
+        if (!$user) {
+            return false;
+        }
+
+        return $user->hasRole(['super_admin', 'Administrador', 'Encargado de Tesis']);
     }
 }
