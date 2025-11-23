@@ -80,7 +80,7 @@ Sigue estos pasos para levantar el proyecto en tu entorno local:
 ## Capturas de Pantalla
 
 ### Welcome Personalizado
-|![Vista del welcome 1](screenshots/w1.jpg)|![Vista del welcome 2](screenshots/w2.jpg)|![Vista del welcome 3](screenshots/w3.jpg)
+|![Vista del welcome 1](screenshots/w1.jpg)|![Vista del welcome 2](screenshots/w2.jpg)|![Vista del welcome 3](screenshots/w3.jpg)|
 
 ### Login Personalizado
 ![Vista del Login con fondo institucional](screenshots/login.jpg)
