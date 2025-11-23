@@ -1,59 +1,99 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Gestión de Préstamos - Biblioteca Central UNASAM
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel)
+![Filament](https://img.shields.io/badge/Filament-v3/v4-F2C94C?style=for-the-badge&logo=filament)
+![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
 
-## About Laravel
+Este sistema es una plataforma integral desarrollada para la **Biblioteca Central de la Universidad Nacional Santiago Antúnez de Mayolo (UNASAM)**. Su objetivo principal es digitalizar y controlar el flujo de préstamos de material bibliográfico (Tesis) y tecnológico (Tablets) a la comunidad universitaria.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Características Principales
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Seguridad y Roles (RBAC)
+El sistema implementa una gestión de permisos granular utilizando **Filament Shield**:
+* **Administrador:** Acceso total al sistema, gestión de usuarios y configuraciones.
+* **Encargado de Tablet:** Acceso exclusivo al inventario y préstamos de equipos tecnológicos.
+* **Encargado de Tesis:** Acceso exclusivo al repositorio bibliográfico.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Gestión de Inventario
+* Registro detallado de **Tablets** (Marca, Modelo, Código, Estado Físico).
+* Catalogación de **Tesis** (Título, Autor).
+* Control de stock en tiempo real y estados de disponibilidad.
 
-## Learning Laravel
+### Flujo de Préstamos Inteligente
+* **Validación de Negocio:** Impide préstamos duplicados (un estudiante no puede tener dos tablets al mismo tiempo).
+* **Formulario Dinámico:** Interfaz reactiva que adapta los campos según el tipo de ítem seleccionado.
+* **Cálculo Automático:** Gestión de fechas de entrega y cambios de estado automáticos.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Reportes y Documentación
+* **Boletas de Préstamo:** Generación de comprobantes en PDF individuales con diseño institucional.
+* **Reportes Generales:** Exportación de listados filtrados (por fecha, estudiante, tipo) usando **DOMPDF**.
+* **Dashboard Analítico:** Gráficos interactivos y estadísticas en tiempo real sobre el uso de los recursos.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tecnologías Utilizadas
 
-## Laravel Sponsors
+* **Backend Framework:** Laravel 12
+* **Admin Panel:** Filament PHP
+* **Base de Datos:** MySQL
+* **PDF Generation:** Barryvdh DomPDF
+* **Frontend:** Blade & TailwindCSS
+* **Autenticación:** Filament Auth
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Instalación y Configuración
 
-### Premium Partners
+Sigue estos pasos para levantar el proyecto en tu entorno local:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1.  **Clonar el repositorio**
+    ```bash
+    git clone [https://github.com/tu-usuario/nombre-repo.git](https://github.com/tu-usuario/nombre-repo.git)
+    cd nombre-repo
+    ```
 
-## Contributing
+2.  **Instalar dependencias**
+    ```bash
+    composer install
+    npm install && npm run build
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3.  **Configurar entorno**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+    *Configura tus credenciales de base de datos en el archivo `.env`.*
 
-## Code of Conduct
+4.  **Base de Datos y Migraciones**
+    ```bash
+    php artisan migrate
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5.  **Crear un Super Administrador**
+    ```bash
+    php artisan shield:super-admin
+    ```
 
-## Security Vulnerabilities
+6.  **Symlink para imágenes** (Necesario para el logo)
+    ```bash
+    php artisan storage:link
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Capturas de Pantalla
 
-## License
+### Welcome Personalizado
+![Vista del welcome 1](screenshots/w1.jpg)![Vista del welcome 2](screenshots/w2.jpg)![Vista del welcome 3](screenshots/w3.jpg)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Login Personalizado
+![Vista del Login con fondo institucional](screenshots/login.jpg)
+
+### Dashboard con Gráficos
+![Vista del Escritorio con estadísticas](screenshots/dash.jpg)(screenshots/graf_tab.jpg)(screenshots/graf_tes.jpg)
+
+### Reporte PDF Generado
+![Ejemplo de lista de préstamos](screenshots/pdf.jpg)
+
+## Nota sobre la API de Estudiantes
+
+Este proyecto incluye una integración con la API de la UNASAM para la obtención de datos de estudiantes. Por motivos de seguridad, las credenciales de acceso y endpoints no se incluyen en el repositorio público. El sistema está configurado para funcionar en modo "Demo" si no se detectan dichas credenciales en el archivo `.env`.
+
+---
+Desarrollado por **Nuñez Infantes Jorge** - Ingeniero de Sistemas
