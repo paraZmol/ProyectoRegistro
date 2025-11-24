@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 use App\Models\Estudiante;
 use App\Services\UNASAMHelpers;
+use App\Models\Item;
 
 
 class PrestamoPdfController extends Controller
@@ -135,10 +136,22 @@ class PrestamoPdfController extends Controller
             // obtener los resultados
             $prestamos = $query->get();
 
+            //prestamos para el pdf
+            /*$resumen = [
+                'total_tablets' => Item::where('tipo', 'Tablet')->count(),
+                'tablets_prestadas' => Item::where('tipo', 'Tablet')->where('estado_disponibilidad', 'Prestado')->count(),
+                'tablets_disponibles' => Item::where('tipo', 'Tablet')->where('estado_disponibilidad', 'Disponible')->count(),
+
+                'total_tesis' => Item::where('tipo', 'Tesis')->count(),
+                'tesis_prestadas' => Item::where('tipo', 'Tesis')->where('estado_disponibilidad', 'Prestado')->count(),
+                'tesis_disponibles' => Item::where('tipo', 'Tesis')->where('estado_disponibilidad', 'Disponible')->count(),
+            ];*/
+
             // generar el pdf
             $pdf = Pdf::loadView('pdf.prestamos-listado', [
                 'prestamos' => $prestamos,
-                'filtrosTexto' => $textosFiltros // para mostrar los filtro en el pdf arriba
+                'filtrosTexto' => $textosFiltros, // para mostrar los filtro en el pdf arriba
+                //'resumen' => $resumen// para contador pdf
             ]);
 
             $pdf->setPaper('a4', 'landscape');

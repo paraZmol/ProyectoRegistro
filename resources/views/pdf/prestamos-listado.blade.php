@@ -147,6 +147,42 @@
     </div>
     <div class="divider"></div>
 
+    {{-- inicio resumen de inventario --}}
+    {{--
+    <div style="margin-bottom: 20px; border: 1px solid #1A3E6C; border-radius: 5px; padding: 10px;">
+        <div style="font-weight: bold; color: #1A3E6C; margin-bottom: 5px; border-bottom: 1px solid #ccc;">
+            RESUMEN DE INVENTARIO ACTUAL
+        </div>
+        <table style="margin: 0; width: 100%;">
+            <thead>
+                <tr>
+                    <th style="background: #f0f4f8; color: #333; font-size: 9px;">TIPO RECURSO</th>
+                    <th style="background: #f0f4f8; color: #333; font-size: 9px; text-align: center;">TOTAL</th>
+                    <th style="background: #f0f4f8; color: #333; font-size: 9px; text-align: center;">PRESTADOS</th>
+                    <th style="background: #f0f4f8; color: #333; font-size: 9px; text-align: center;">DISPONIBLES</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight: bold;">Tablets / Equipos</td>
+                    <td style="text-align: center;">{{ $resumen['total_tablets'] }}</td>
+                    <td style="text-align: center; color: #D35400;">{{ $resumen['tablets_prestadas'] }}</td>
+                    <td style="text-align: center; color: #27AE60;">{{ $resumen['tablets_disponibles'] }}</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Tesis Físicas</td>
+                    <td style="text-align: center;">{{ $resumen['total_tesis'] }}</td>
+                    <td style="text-align: center; color: #D35400;">{{ $resumen['tesis_prestadas'] }}</td>
+                    <td style="text-align: center; color: #27AE60;">{{ $resumen['tesis_disponibles'] }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    --}}
+    {{-- fin resumen de inventario --}}
+
+    {{--<div class="divider"></div>--}}
+
     {{-- para mostrar lo filtros --}}
 
     <div class="filtros-box">
@@ -165,6 +201,14 @@
                 Ninguno (Mostrando todos los registros)
             </span>
         @endif
+
+        {{-- NUEVO: CONTADOR DE REGISTROS --}}
+        <div style="text-align: right; margin-bottom: 5px; font-size: 10px; color: #1A3E6C;">
+            <strong>Total de Registros Encontrados:</strong>
+            <span style="font-size: 12px; font-weight: bold; border: 1px solid #1A3E6C; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">
+                {{ count($prestamos) }}
+            </span>
+        </div>
     </div>
 
     {{-- fin filtros --}}
@@ -172,7 +216,7 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 20px; text-align: center;">ID</th>
+                {{-- <th style="width: 20px; text-align: center;">ID</th> --}}
                 <th style="width: 200px;">Estudiante</th>
                 <th style="width: 150px;">Programa Académico</th>
                 <th>Detalle del Ítem</th>
@@ -183,7 +227,7 @@
         <tbody>
             @forelse($prestamos as $prestamo)
                 <tr>
-                    <td style="text-align: center;">{{ $prestamo->id }}</td>
+                    {{-- <td style="text-align: center;">{{ $prestamo->id }}</td> --}}
 
                     <td>
                         <div class="text-bold">
