@@ -202,7 +202,7 @@
             </span>
         @endif
 
-        {{-- NUEVO: CONTADOR DE REGISTROS --}}
+        {{-- contador de registros --}}
         <div style="text-align: right; margin-bottom: 5px; font-size: 10px; color: #1A3E6C;">
             <strong>Total de Registros Encontrados:</strong>
             <span style="font-size: 12px; font-weight: bold; border: 1px solid #1A3E6C; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">
