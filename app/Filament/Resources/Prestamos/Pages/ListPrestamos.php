@@ -11,9 +11,16 @@ use App\Filament\Resources\Prestamos\PrestamoResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+// para el excel
+use Filament\Actions\Action;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PrestamosExport;
+use Maatwebsite\Excel\Concerns\Exportable;
+
 
 class ListPrestamos extends ListRecords
 {
+    use Exportable;
     protected static string $resource = PrestamoResource::class;
 
     protected function getHeaderActions(): array
@@ -25,11 +32,24 @@ class ListPrestamos extends ListRecords
             Actions\Action::make('imprimir')
                 ->label('Imprimir')
                 ->icon('heroicon-o-printer')
-                ->color('success')
+                ->color('info')
                 ->url(fn ($livewire) => route('prestamos.imprimir', [
                     'filtros' => $livewire->tableFilters
                 ]))
                 ->openUrlInNewTab(),
+
+            // bton de exportar a excel
+            Action::make('exportExcel')
+                ->label('Exportar Excel')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->action(function ($livewire) {
+                    return Excel::download(
+                            new PrestamosExport(),
+                            'Reporte_Prestamos_' . date('Y-m-d') . '.xlsx'
+                    );
+                })
+                ->requiresConfirmation(),
         ];
     }
 

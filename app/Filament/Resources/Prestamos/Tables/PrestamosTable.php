@@ -21,7 +21,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
-//use Filament\Tables\Actions\Action;
 
 class PrestamosTable
 {
@@ -31,6 +30,7 @@ class PrestamosTable
             //ordenar por defecto de lo mas reciente al mas primero ---
             ->defaultSort('created_at', 'desc')
             ->columns([
+                //TextColumn::make('id'),
                 TextColumn::make('estado') // columna virtual
                     ->label('Estado')
                     ->getStateUsing(function ($record): string {
